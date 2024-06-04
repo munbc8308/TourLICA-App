@@ -18,6 +18,9 @@ import com.application.tourlica.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 import okhttp3.MediaType;
@@ -48,7 +51,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 new Thread(() -> {
-                    sign_in();
+                    try {
+                        sign_in();
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
                 }).start();
 
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -87,19 +94,23 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    private String sign_in() {
+    private String sign_in() throws JSONException {
         final MediaType JSON = MediaType.get("application/json");
         OkHttpClient client = new OkHttpClient();
         String base_url = "https://tourlica.shop";
-        String json = "{name: admin, password: admin }";
-        RequestBody body = RequestBody.create(json, JSON);
+        JSONObject jo = new JSONObject();
+        jo.put("email", "admin");
+        jo.put("password", "admin");
+
+        RequestBody body = RequestBody.create(jo.toString(), JSON);
         Request request = new Request.Builder()
                 .url(base_url + "/api/sign-in")
                 .post(body)
                 .build();
-
+        System.out.println(request);
 
         try (Response response = client.newCall(request).execute()) {
+            System.out.println(response);
             if (response.isSuccessful()) {
                 System.out.println("excute!!!!!");
                 return response.body().string();
