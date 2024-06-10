@@ -2,3 +2,11 @@
 plugins {
     alias(libs.plugins.android.application) apply false
 }
+
+allprojects {
+    repositories {
+        maven {
+            url = uri("https://devrepo.kakao.com/nexus/repository/kakaomap-releases/")
+        }
+    }
+}
