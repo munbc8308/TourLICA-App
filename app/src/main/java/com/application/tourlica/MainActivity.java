@@ -1,13 +1,18 @@
 package com.application.tourlica;
 
+import android.content.pm.PackageManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.View;
 
+import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -35,11 +40,18 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
 
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         KakaoMapSdk.init(this, "d676018bf28505ed778825aeca90dfd6");
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -47,11 +59,37 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationListener = location -> {
+            // 위치가 변할때마다 실행된다.
+            // 위치가 변경될때 마다 위도, 경도를 가져온다.
+            location.getLatitude(); // 위도
+            location.getLongitude(); // 경도
+            Log.i("MY LOCATION", "위도 : " + location.getLatitude());
+            Log.i("MY LOCATION", "경도 : " + location.getLongitude());
+        };
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // 권한 요청 하지 않았다면,
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                    100); // 다시 권한을 요청한다.
+            return;
+        }
+
+        locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, // GPS 센서 연결
+                10000, // 몇초에 한번 씩 위치를 갱신/파악 하게 할 것인지
+                2000, // 몇미터 이동에 한번씩 찾을까
+                locationListener);// 어떤 코드를 실행 시킬것인지.
+
+
+
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
-
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override

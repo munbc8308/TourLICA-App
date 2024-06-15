@@ -15,13 +15,12 @@ import com.kakao.vectormap.KakaoMap;
 import com.kakao.vectormap.KakaoMapReadyCallback;
 import com.kakao.vectormap.LatLng;
 import com.kakao.vectormap.MapLifeCycleCallback;
-import com.kakao.vectormap.MapType;
 import com.kakao.vectormap.MapView;
-import com.kakao.vectormap.MapViewInfo;
 
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
+    private Bundle bundle;
 
     @Override
     public View onCreateView(
@@ -29,12 +28,17 @@ public class FirstFragment extends Fragment {
             Bundle savedInstanceState
     ) {
         binding = FragmentFirstBinding.inflate(inflater, container, false);
+
         return binding.getRoot();
 
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        bundle = getArguments();
+
+        //ArrayList<String> location_list = bundle.getStringArrayList("location_list");
+        //Log.d("location_list", location_list.toString());
 
         binding.buttonFirst.setOnClickListener(v ->
                 NavHostFragment.findNavController(FirstFragment.this)
@@ -67,19 +71,13 @@ public class FirstFragment extends Fragment {
             @Override
             public LatLng getPosition() {
                 // 지도 시작 시 위치 좌표를 설정
-                return LatLng.from(37.406960, 127.115587);
+                return LatLng.from(37.421998333333335, -122.084);
             }
 
             @Override
             public int getZoomLevel() {
                 // 지도 시작 시 확대/축소 줌 레벨 설정
                 return 15;
-            }
-
-            @Override
-            public MapViewInfo getMapViewInfo() {
-                // 지도 시작 시 App 및 MapType 설정
-                return MapViewInfo.from(MapType.NORMAL.getValue());
             }
 
             @Override
@@ -123,6 +121,8 @@ public class FirstFragment extends Fragment {
         super.onPause();
         mapView.pause();    // MapView 의 pause 호출
     }
+
+
 
 
 
