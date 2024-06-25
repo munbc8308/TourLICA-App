@@ -40,11 +40,6 @@ public class FirstFragment extends Fragment {
         //ArrayList<String> location_list = bundle.getStringArrayList("location_list");
         //Log.d("location_list", location_list.toString());
 
-        binding.buttonFirst.setOnClickListener(v ->
-                NavHostFragment.findNavController(FirstFragment.this)
-                        .navigate(R.id.action_FirstFragment_to_SecondFragment)
-        );
-
         //Log.d("AAAAAAAA", "TEST");
         MapView mapView = binding.mapView;
 
