@@ -7,11 +7,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 
 import com.application.tourlica.data.AppData;
 import com.kakao.vectormap.KakaoMapSdk;
@@ -20,9 +19,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -96,10 +92,11 @@ public class MainActivity extends ComponentActivity {
 
         setContentView(R.layout.main_activity);
         progressBar = findViewById(R.id.progress_horizontal);
-        startProgress(progressBar);
+        TextView loadingText = findViewById(R.id.loading_text);
+        startProgress(progressBar, loadingText);
     }
 
-    private void startProgress(ProgressBar progressBar) {
+    private void startProgress(ProgressBar progressBar, TextView loadingText) {
         if (timer != null){
             timer.cancel();
         }
@@ -111,7 +108,20 @@ public class MainActivity extends ComponentActivity {
             public void run() {
                 progress++;
                 progressBar.setProgress(progress);
-                if (progress == 2000) {
+                if (progress == 180) {
+                    loadingText.setText(getString(R.string.app_loading_30));
+                }
+
+                if (progress == 360) {
+                    loadingText.setText(getString(R.string.app_loading_60));
+                }
+
+                if (progress == 540) {
+                    loadingText.setText(getString(R.string.app_loading_90));
+                }
+
+                if (progress == 600) {
+                    loadingText.setText("데이터 로링 완료 :)");
                     timer.cancel();
                 }
             }

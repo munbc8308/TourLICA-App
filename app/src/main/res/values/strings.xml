@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">TourLICA</string>
+    <string name="app_loading_30">데이터 로딩 중 30%</string>
+    <string name="app_loading_60">거의 다 되었습니다 60%</string>
+    <string name="app_loading_90">조금만 더!!! 90%</string>
     <!-- Strings used for fragments for navigation -->
 </resources>
