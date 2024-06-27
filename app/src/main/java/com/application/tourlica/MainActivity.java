@@ -5,9 +5,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ProgressBar;
 
 import androidx.activity.ComponentActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 
 import com.kakao.vectormap.KakaoMapSdk;
@@ -16,6 +18,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -27,6 +31,12 @@ public class MainActivity extends ComponentActivity {
 
     private LocationManager locationManager;
     private LocationListener locationListener;
+
+    private String log_in_user_info;
+
+    private ProgressBar progressBar;
+
+    private Timer timer = null;
 
     @Override
     protected void onStart() {
@@ -64,8 +74,39 @@ public class MainActivity extends ComponentActivity {
                 2000, // 몇미터 이동에 한번씩 찾을까
                 locationListener);// 어떤 코드를 실행 시킬것인지.
 
+
+        new Thread(()->{
+            try {
+                log_in_user_info = sign_in();
+                System.out.println(log_in_user_info);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+
+        setContentView(R.layout.main_activity);
+        progressBar = findViewById(R.id.progress_horizontal);
+        startProgress(progressBar);
     }
 
+    private void startProgress(ProgressBar progressBar) {
+        if (timer != null){
+            timer.cancel();
+        }
+
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            int progress = 0;
+            @Override
+            public void run() {
+                progress++;
+                progressBar.setProgress(progress);
+                if (progress == 500) {
+                    timer.cancel();
+                }
+            }
+        }, 0, 10);
+    }
 
     private String sign_in() throws JSONException {
         final MediaType JSON = MediaType.get("application/json");
