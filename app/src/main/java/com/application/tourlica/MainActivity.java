@@ -31,11 +31,8 @@ public class MainActivity extends ComponentActivity {
 
     private LocationManager locationManager;
     private LocationListener locationListener;
-
     private String log_in_user_info;
-
     private ProgressBar progressBar;
-
     private Timer timer = null;
 
     @Override
@@ -135,6 +132,34 @@ public class MainActivity extends ComponentActivity {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    private String get() throws JSONException {
+        final MediaType JSON = MediaType.get("application/json");
+        OkHttpClient client = new OkHttpClient();
+        String base_url = "https://tourlica.shop";
+        JSONObject jo = new JSONObject();
+        jo.put("email", "admin");
+        jo.put("password", "admin");
+
+        RequestBody body = RequestBody.create(jo.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(base_url + "/api/sign-in")
+                .post(body)
+                .build();
+        System.out.println(request);
+
+        try (Response response = client.newCall(request).execute()) {
+            System.out.println(response);
+            if (response.isSuccessful()) {
+                System.out.println("excute!!!!!");
+                return response.body().string();
+            } else {
+                System.out.println("excute error!!!!!");
+                return "error";
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
