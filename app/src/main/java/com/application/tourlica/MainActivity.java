@@ -1,6 +1,7 @@
 package com.application.tourlica;
 
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -12,12 +13,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 
+import com.application.tourlica.data.AppData;
 import com.kakao.vectormap.KakaoMapSdk;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -32,6 +37,7 @@ public class MainActivity extends ComponentActivity {
     private LocationManager locationManager;
     private LocationListener locationListener;
     private String log_in_user_info;
+    private String tour_information;
     private ProgressBar progressBar;
     private Timer timer = null;
 
@@ -52,8 +58,15 @@ public class MainActivity extends ComponentActivity {
             // 위치가 변경될때 마다 위도, 경도를 가져온다.
             location.getLatitude(); // 위도
             location.getLongitude(); // 경도
+
             Log.i("MY LOCATION", "위도 : " + location.getLatitude());
             Log.i("MY LOCATION", "경도 : " + location.getLongitude());
+
+
+            new Thread(()->{
+                    tour_information = getLocationBasedList1(location);
+                    System.out.println(tour_information);
+            }).start();
         };
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -98,7 +111,7 @@ public class MainActivity extends ComponentActivity {
             public void run() {
                 progress++;
                 progressBar.setProgress(progress);
-                if (progress == 500) {
+                if (progress == 2000) {
                     timer.cancel();
                 }
             }
@@ -132,27 +145,28 @@ public class MainActivity extends ComponentActivity {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+
     }
 
-    private String get() throws JSONException {
-        final MediaType JSON = MediaType.get("application/json");
+    private String getLocationBasedList1(Location location) {
         OkHttpClient client = new OkHttpClient();
-        String base_url = "https://tourlica.shop";
-        JSONObject jo = new JSONObject();
-        jo.put("email", "admin");
-        jo.put("password", "admin");
-
-        RequestBody body = RequestBody.create(jo.toString(), JSON);
+        String base_url = AppData.DATAGOKR_BASEURL;
+        String parameter = "?";
+        parameter += "numOfRows=200&pageNo=1&MobileOS=AND&MobileApp=TourLICA&_type=json&mapX="; //경도
+        parameter += location.getLongitude();
+        parameter += "&mapY="; //위도
+        parameter += location.getLatitude();
+        parameter += "&radius=20000&contentTypeId=12&serviceKey=";
+        parameter += AppData.DATAGOKR_APIKEY;
         Request request = new Request.Builder()
-                .url(base_url + "/api/sign-in")
-                .post(body)
+                .url(base_url + "/locationBasedList1" + parameter)
+                .get()
                 .build();
-        System.out.println(request);
-
         try (Response response = client.newCall(request).execute()) {
             System.out.println(response);
             if (response.isSuccessful()) {
-                System.out.println("excute!!!!!");
+                System.out.println("관광정보 excute!!!!!");
                 return response.body().string();
             } else {
                 System.out.println("excute error!!!!!");

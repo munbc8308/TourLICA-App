@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,20 +7,24 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:fitsSystemWindows="true"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="400dp"
-        android:src="@drawable/tourlica_logo" />
+        android:src="@drawable/tourlica_logo"
+        android:layout_gravity="center"/>
+
     <ProgressBar
         android:id="@+id/progress_horizontal"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_below="@id/imageView"
-        android:layout_width="match_parent"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:max="500"
+        android:textAlignment="center"
         app:layout_constraintTop_toTopOf="parent" />
 
-</RelativeLayout>
+</LinearLayout>
