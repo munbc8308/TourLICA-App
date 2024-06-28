@@ -51,6 +51,8 @@ dependencies {
     implementation("com.kakao.maps.open:android:2.9.5")
 
     implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

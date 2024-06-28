@@ -1,5 +1,6 @@
 package com.application.tourlica;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -10,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.application.tourlica.data.AppData;
@@ -28,7 +30,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class MainActivity extends ComponentActivity {
+public class MainActivity extends AppCompatActivity {
 
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -96,6 +98,13 @@ public class MainActivity extends ComponentActivity {
         startProgress(progressBar, loadingText);
     }
 
+    private void moveToLogIn() {
+        Intent logIn = new Intent(MainActivity.this, LoginActivity.class);
+        logIn.putExtra("TOURDATA", tour_information);
+        startActivity(logIn);
+        finish();
+    }
+
     private void startProgress(ProgressBar progressBar, TextView loadingText) {
         if (timer != null){
             timer.cancel();
@@ -123,6 +132,7 @@ public class MainActivity extends ComponentActivity {
                 if (progress == 600) {
                     loadingText.setText("데이터 로링 완료 :)");
                     timer.cancel();
+                    moveToLogIn();
                 }
             }
         }, 0, 10);
@@ -155,8 +165,6 @@ public class MainActivity extends ComponentActivity {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     private String getLocationBasedList1(Location location) {
