@@ -8,16 +8,18 @@ import com.application.tourlica.ui.log_in.LoginFragment;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private String tour_information;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        tour_information = getIntent().getStringExtra("TOURDATA");
+        Bundle bundle = new Bundle();
+        bundle.putString("TOURDATA", getIntent().getStringExtra("TOURDATA"));
+        bundle.putString("LOCATION", getIntent().getStringExtra("LOCATION"));
         if (savedInstanceState == null) {
+            LoginFragment fragment = LoginFragment.newInstance();
+            fragment.setArguments(bundle);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, LoginFragment.newInstance())
+                    .replace(R.id.container, fragment)
                     .commitNow();
         }
     }

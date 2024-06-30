@@ -36,7 +36,12 @@ public class MainActivity extends AppCompatActivity {
     private LocationListener locationListener;
     private String log_in_user_info;
     private String tour_information;
+
+    private String location_information = "";
+
     private ProgressBar progressBar;
+
+    private Boolean isDataLoading = false;
     private Timer timer = null;
 
     @Override
@@ -60,10 +65,12 @@ public class MainActivity extends AppCompatActivity {
             Log.i("MY LOCATION", "위도 : " + location.getLatitude());
             Log.i("MY LOCATION", "경도 : " + location.getLongitude());
 
+            location_information += location.getLatitude() + "/";
+            location_information += location.getLongitude();
 
-            new Thread(()->{
-                    tour_information = getLocationBasedList1(location);
-                    System.out.println(tour_information);
+            new Thread(() -> {
+                tour_information = getLocationBasedList1(location);
+                System.out.println(tour_information);
             }).start();
         };
 
@@ -83,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 locationListener);// 어떤 코드를 실행 시킬것인지.
 
 
-        new Thread(()->{
+        new Thread(() -> {
             try {
                 log_in_user_info = sign_in();
                 System.out.println(log_in_user_info);
@@ -101,35 +108,35 @@ public class MainActivity extends AppCompatActivity {
     private void moveToLogIn() {
         Intent logIn = new Intent(MainActivity.this, LoginActivity.class);
         logIn.putExtra("TOURDATA", tour_information);
+        logIn.putExtra("LOCATION", location_information);
         startActivity(logIn);
         finish();
     }
 
     private void startProgress(ProgressBar progressBar, TextView loadingText) {
-        if (timer != null){
+        if (timer != null) {
             timer.cancel();
         }
 
         timer = new Timer();
         timer.schedule(new TimerTask() {
             int progress = 0;
+
             @Override
             public void run() {
                 progress++;
                 progressBar.setProgress(progress);
                 if (progress == 180) {
                     loadingText.setText(getString(R.string.app_loading_30));
-                }
-
-                if (progress == 360) {
+                } else if (progress == 360) {
                     loadingText.setText(getString(R.string.app_loading_60));
-                }
-
-                if (progress == 540) {
+                } else if (progress == 540 && isDataLoading) {
                     loadingText.setText(getString(R.string.app_loading_90));
-                }
-
-                if (progress == 600) {
+                } else if (progress == 600 && isDataLoading) {
+                    loadingText.setText("데이터 로링 완료 :)");
+                    timer.cancel();
+                    moveToLogIn();
+                } else if (progress == 1000 && isDataLoading) {
                     loadingText.setText("데이터 로링 완료 :)");
                     timer.cancel();
                     moveToLogIn();
@@ -185,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(response);
             if (response.isSuccessful()) {
                 System.out.println("관광정보 excute!!!!!");
+                isDataLoading = true;
                 return response.body().string();
             } else {
                 System.out.println("excute error!!!!!");
