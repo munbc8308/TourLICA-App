@@ -2,6 +2,8 @@ package com.application.tourlica.ui.log_in;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -9,19 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.application.tourlica.R;
 import com.application.tourlica.databinding.FragmentMainBinding;
-import com.google.android.gms.common.util.JsonUtils;
 import com.kakao.vectormap.KakaoMap;
 import com.kakao.vectormap.KakaoMapReadyCallback;
 import com.kakao.vectormap.LatLng;
-import com.kakao.vectormap.MapGravity;
 import com.kakao.vectormap.MapLifeCycleCallback;
 import com.kakao.vectormap.MapView;
 import com.kakao.vectormap.label.CompetitionType;
@@ -34,15 +32,16 @@ import com.kakao.vectormap.label.LabelOptions;
 import com.kakao.vectormap.label.LabelStyle;
 import com.kakao.vectormap.label.LabelStyles;
 import com.kakao.vectormap.label.OrderingType;
-import com.kakao.vectormap.mapwidget.MapWidgetOptions;
-import com.kakao.vectormap.mapwidget.component.GuiImage;
-import com.kakao.vectormap.mapwidget.component.GuiLayout;
-import com.kakao.vectormap.mapwidget.component.GuiText;
-import com.kakao.vectormap.mapwidget.component.Orientation;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LoginFragment extends Fragment {
 
@@ -50,8 +49,8 @@ public class LoginFragment extends Fragment {
 
     private FragmentMainBinding binding;
 
-    private String location_information;
-    private String tour_information;
+    private String location_information = "";
+    private String tour_information = "";
 
     private JSONObject tour_information_json;
 
@@ -195,13 +194,16 @@ public class LoginFragment extends Fragment {
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
 
-            LabelStyles styles = kakaoMap.getLabelManager()
-                    .addLabelStyles(LabelStyles.from(LabelStyle.from().setTextStyles(40, Color.BLACK)));
+
+
+
+
 
             // 1. LabelStyles 생성하기 - Icon 이미지 하나만 있는 스타일
             //        .addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.label)));
             // 1. 텍스트만 있는 스타일 - 글자크기 20px, 글자색깔 검정색
-
+            LabelStyles styles = kakaoMap.getLabelManager()
+                    .addLabelStyles(LabelStyles.from(LabelStyle.from().setTextStyles(40, Color.BLACK)));
             // 2. LabelOptions 생성하기
             LabelOptions options =
                     LabelOptions.from(LatLng.from(Double.valueOf((String) item.get("mapy")), Double.valueOf((String) item.get("mapx"))))
@@ -209,6 +211,21 @@ public class LoginFragment extends Fragment {
                             .setStyles(styles);
             // 4. LabelLayer 에 LabelOptions 을 넣어 Label 생성하기
             Label label = layer.addLabel(options);
+
+            if (!item.getString("firstimage").equals("")) {
+                new Thread(() -> {
+                    try {
+                        Bitmap bitmap = getBitmapFromURL((item.getString("firstimage")));
+                        LabelStyles image_styles = kakaoMap.getLabelManager()
+                                .addLabelStyles(LabelStyles.from(LabelStyle.from(bitmap).setTextStyles(40, Color.BLACK)));
+                        label.changeStyles(image_styles);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
+            }
+
+
             Log.d("item", item.toString());
         }
 
@@ -218,5 +235,33 @@ public class LoginFragment extends Fragment {
         //        .setOrderingType(OrderingType.Rank)
         //        .setCompetitionUnit(CompetitionUnit.IconAndText)
         //        .setCompetitionType(CompetitionType.All));
+
+    }
+
+    private Bitmap getBitmapFromURL(String src) {
+        try {
+            URL url = new URL(src);
+            Log.d("bitmapURL", src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return aspectRatioBitamp(myBitmap);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Bitmap aspectRatioBitamp(Bitmap source) {
+        int targetWidth = 100;
+        double aspectRatio = (double) source.getHeight() / (double) source.getWidth(); // 종횡비 계산
+        int targetHeight = (int) (targetWidth * aspectRatio);
+        Bitmap result = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
+        if (result != source) {
+            source.recycle();
+        }
+        return result;
     }
 }

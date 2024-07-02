@@ -90,14 +90,14 @@ public class MainActivity extends AppCompatActivity {
                 locationListener);// 어떤 코드를 실행 시킬것인지.
 
 
-        new Thread(() -> {
+        /*new Thread(() -> {
             try {
                 log_in_user_info = sign_in();
                 System.out.println(log_in_user_info);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
-        }).start();
+        }).start();*/
 
         setContentView(R.layout.main_activity);
         progressBar = findViewById(R.id.progress_horizontal);
@@ -124,23 +124,19 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                progress++;
                 progressBar.setProgress(progress);
                 if (progress == 180) {
                     loadingText.setText(getString(R.string.app_loading_30));
                 } else if (progress == 360) {
                     loadingText.setText(getString(R.string.app_loading_60));
-                } else if (progress == 540 && isDataLoading) {
+                } else if (progress == 540 ) {
                     loadingText.setText(getString(R.string.app_loading_90));
-                } else if (progress == 600 && isDataLoading) {
-                    loadingText.setText("데이터 로링 완료 :)");
-                    timer.cancel();
-                    moveToLogIn();
-                } else if (progress == 1000 && isDataLoading) {
+                } else if (progress == 600) {
                     loadingText.setText("데이터 로링 완료 :)");
                     timer.cancel();
                     moveToLogIn();
                 }
+                progress++;
             }
         }, 0, 10);
     }
