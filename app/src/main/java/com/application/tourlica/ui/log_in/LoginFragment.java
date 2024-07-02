@@ -1,56 +1,36 @@
 package com.application.tourlica.ui.log_in;
 
-import androidx.lifecycle.ViewModelProvider;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.application.tourlica.databinding.FragmentMainBinding;
-import com.kakao.vectormap.KakaoMap;
-import com.kakao.vectormap.KakaoMapReadyCallback;
-import com.kakao.vectormap.LatLng;
-import com.kakao.vectormap.MapLifeCycleCallback;
-import com.kakao.vectormap.MapView;
-import com.kakao.vectormap.label.CompetitionType;
-import com.kakao.vectormap.label.CompetitionUnit;
-import com.kakao.vectormap.label.Label;
-import com.kakao.vectormap.label.LabelLayer;
-import com.kakao.vectormap.label.LabelLayerOptions;
-import com.kakao.vectormap.label.LabelManager;
-import com.kakao.vectormap.label.LabelOptions;
-import com.kakao.vectormap.label.LabelStyle;
-import com.kakao.vectormap.label.LabelStyles;
-import com.kakao.vectormap.label.OrderingType;
-
-import org.json.JSONArray;
+import android.widget.Button;
+import com.application.tourlica.R;
+import com.application.tourlica.databinding.FragmentLoginBinding;
+import com.google.android.material.textfield.TextInputEditText;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.concurrent.atomic.AtomicReference;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class LoginFragment extends Fragment {
 
-    private MainViewModel mViewModel;
-
-    private FragmentMainBinding binding;
+    private FragmentLoginBinding binding;
 
     private String location_information = "";
     private String tour_information = "";
+
+    private String log_in_user_info = "";
 
     private JSONObject tour_information_json;
 
@@ -65,13 +45,11 @@ public class LoginFragment extends Fragment {
         super.onCreate(savedInstanceState);
         location_information = (String) getArguments().get("LOCATION");
         tour_information = (String) getArguments().get("TOURDATA");
-        Log.e("LoginFragment", tour_information);
         try {
             tour_information_json = new JSONObject(tour_information);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         // TODO: Use the ViewModel
     }
 
@@ -79,189 +57,111 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentMainBinding.inflate(inflater, container, false);
+        binding = FragmentLoginBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        MapView mapView = binding.mapView;
-        mapView.start(new MapLifeCycleCallback() {
+
+        Button btn_sign_in = view.findViewById(R.id.btn_sign_in);
+        Button btn_sign_up = view.findViewById(R.id.btn_sign_up);
+
+        TextInputEditText email_text = view.findViewById(R.id.email_text);
+        TextInputEditText pwd_text = view.findViewById(R.id.pwd_text);
+
+        final String[] email = {""};
+        final String[] pwd = {""};
+        email_text.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onMapDestroy() {
-                // 지도 API 가 정상적으로 종료될 때 호출됨
-                Log.d("map", "destroy");
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
             }
 
             @Override
-            public void onMapError(Exception error) {
-                // 인증 실패 및 지도 사용 중 에러가 발생할 때 호출됨
-                Log.d("map", error.toString());
-            }
-        }, new KakaoMapReadyCallback() {
-            @Override
-            public void onMapReady(KakaoMap kakaoMap) {
-                // 인증 후 API 가 정상적으로 실행될 때 호출됨
-                Log.d("map", kakaoMap.getViewName());
-                Log.d("map", "success");
-                try {
-                    doDisplayLabels(kakaoMap);
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.d("email", s.toString());
+                email[0] = s.toString();
             }
 
             @Override
-            public LatLng getPosition() {
-                //System.out.println("position : " +  location_information);
+            public void afterTextChanged(Editable s) {
 
-                // 지도 시작 시 위치 좌표를 설정
-                return LatLng.from(Double.valueOf(location_information.split("/")[0]), Double.valueOf(location_information.split("/")[1]));
-            }
-
-            @Override
-            public int getZoomLevel() {
-                // 지도 시작 시 확대/축소 줌 레벨 설정
-                return 15;
-            }
-
-            @Override
-            public String getViewName() {
-                // KakaoMap 의 고유한 이름을 설정
-                return "TourLICA_Map";
-            }
-
-            @Override
-            public boolean isVisible() {
-                // 지도 시작 시 visible 여부를 설정
-                return true;
-            }
-
-            @Override
-            public String getTag() {
-                // KakaoMap 의 tag 을 설정
-                return "FirstMapTag";
             }
         });
 
+        pwd_text.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.d("pwd", s.toString());
+                pwd[0] = s.toString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        btn_sign_in.setOnClickListener(v -> {
+            Log.d("not null?", email[0] + " / " + pwd[0]);
+            new Thread(() -> {
+                try {
+                    log_in_user_info = sign_in(email[0], pwd[0]);
+                    Log.d("USER_INFO", log_in_user_info);
+                    JSONObject user = new JSONObject(log_in_user_info);
+                    if (user.get("status").equals("SUCCESS")) {
+                        Log.d("LOGIN", user.get("data").toString());
+                    } else {
+                        Log.d("LOGIN", "FAILED");
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+        });
 
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d("map", "destroy");
         binding = null;
     }
 
-    @Override
-    public void onResume() {
-        MapView mapView = binding.mapView;
-        super.onResume();
-        mapView.resume();     // MapView 의 resume 호출
-    }
+    private String sign_in(String email, String pwd) throws JSONException {
+        final MediaType JSON = MediaType.get("application/json");
+        OkHttpClient client = new OkHttpClient();
+        String base_url = "https://tourlica.shop";
+        JSONObject jo = new JSONObject();
+        jo.put("email", email);
+        jo.put("password", pwd);
 
-    @Override
-    public void onPause() {
-        MapView mapView = binding.mapView;
-        super.onPause();
-        mapView.pause();    // MapView 의 pause 호출
-    }
+        RequestBody body = RequestBody.create(jo.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(base_url + "/api/sign-in")
+                .post(body)
+                .build();
+        System.out.println(request);
 
-    private void doDisplayLabels(KakaoMap kakaoMap) throws JSONException {
-
-        // LabelManager 를 가져오는 방법
-        LabelManager labelManager = kakaoMap.getLabelManager();
-        // 1. LabelManager 에 미리 생성 된 디폴트 LabelLayer 가져오는 방법
-        //labelManager.getLayer();
-        //labelManager.getLodLayer();
-
-        // 2. 사용자 커스텀으로 LabelLayer 생성 및 가져오는 방법
-        LabelLayer layer = labelManager.addLayer(LabelLayerOptions.from("TourLICA_Labels")
-                .setOrderingType(OrderingType.Rank)
-                .setCompetitionUnit(CompetitionUnit.IconAndText)
-                .setCompetitionType(CompetitionType.All));
-
-        //Log.d("json", tour_information_json.toString());
-        JSONArray items = tour_information_json.getJSONObject("response")
-                .getJSONObject("body")
-                .getJSONObject("items")
-                .getJSONArray("item");
-
-        Log.d("items", items.toString());
-
-        for (int i = 0; i < items.length(); i++) {
-            JSONObject item = items.getJSONObject(i);
-
-
-
-
-
-
-            // 1. LabelStyles 생성하기 - Icon 이미지 하나만 있는 스타일
-            //        .addLabelStyles(LabelStyles.from(LabelStyle.from(R.drawable.label)));
-            // 1. 텍스트만 있는 스타일 - 글자크기 20px, 글자색깔 검정색
-            LabelStyles styles = kakaoMap.getLabelManager()
-                    .addLabelStyles(LabelStyles.from(LabelStyle.from().setTextStyles(40, Color.BLACK)));
-            // 2. LabelOptions 생성하기
-            LabelOptions options =
-                    LabelOptions.from(LatLng.from(Double.valueOf((String) item.get("mapy")), Double.valueOf((String) item.get("mapx"))))
-                            .setTexts((String)item.get("title"))
-                            .setStyles(styles);
-            // 4. LabelLayer 에 LabelOptions 을 넣어 Label 생성하기
-            Label label = layer.addLabel(options);
-
-            if (!item.getString("firstimage").equals("")) {
-                new Thread(() -> {
-                    try {
-                        Bitmap bitmap = getBitmapFromURL((item.getString("firstimage")));
-                        LabelStyles image_styles = kakaoMap.getLabelManager()
-                                .addLabelStyles(LabelStyles.from(LabelStyle.from(bitmap).setTextStyles(40, Color.BLACK)));
-                        label.changeStyles(image_styles);
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).start();
+        try (Response response = client.newCall(request).execute()) {
+            System.out.println(response);
+            if (response.isSuccessful()) {
+                System.out.println("excute!!!!!");
+                return response.body().string();
+            } else {
+                System.out.println("excute error!!!!!");
+                return "error";
             }
-
-
-            Log.d("item", item.toString());
-        }
-
-
-        // 2-1. 사용자 커스텀으로 LodLabelLayer 생성 및 가져오는 방법
-        //LodLabelLayer lodLayer = labelManager.addLodLayer(LabelLayerOptions.from("myLayerId")
-        //        .setOrderingType(OrderingType.Rank)
-        //        .setCompetitionUnit(CompetitionUnit.IconAndText)
-        //        .setCompetitionType(CompetitionType.All));
-
-    }
-
-    private Bitmap getBitmapFromURL(String src) {
-        try {
-            URL url = new URL(src);
-            Log.d("bitmapURL", src);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return aspectRatioBitamp(myBitmap);
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
-    private Bitmap aspectRatioBitamp(Bitmap source) {
-        int targetWidth = 100;
-        double aspectRatio = (double) source.getHeight() / (double) source.getWidth(); // 종횡비 계산
-        int targetHeight = (int) (targetWidth * aspectRatio);
-        Bitmap result = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
-        if (result != source) {
-            source.recycle();
-        }
-        return result;
-    }
 }

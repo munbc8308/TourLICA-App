@@ -89,16 +89,6 @@ public class MainActivity extends AppCompatActivity {
                 2000, // 몇미터 이동에 한번씩 찾을까
                 locationListener);// 어떤 코드를 실행 시킬것인지.
 
-
-        /*new Thread(() -> {
-            try {
-                log_in_user_info = sign_in();
-                System.out.println(log_in_user_info);
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();*/
-
         setContentView(R.layout.main_activity);
         progressBar = findViewById(R.id.progress_horizontal);
         TextView loadingText = findViewById(R.id.loading_text);
@@ -125,49 +115,37 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 progressBar.setProgress(progress);
-                if (progress == 180) {
-                    loadingText.setText(getString(R.string.app_loading_30));
-                } else if (progress == 360) {
-                    loadingText.setText(getString(R.string.app_loading_60));
-                } else if (progress == 540 ) {
-                    loadingText.setText(getString(R.string.app_loading_90));
-                } else if (progress == 600) {
-                    loadingText.setText("데이터 로링 완료 :)");
-                    timer.cancel();
-                    moveToLogIn();
+                switch (progress) {
+                    case 180 :
+                        loadingText.setText(getString(R.string.app_loading_30));
+                        progress++;
+                        break;
+                    case 360 :
+                        loadingText.setText(getString(R.string.app_loading_60));
+                        progress++;
+                        break;
+                    case 540 :
+                        loadingText.setText(getString(R.string.app_loading_90));
+                        progress++;
+                        break;
+                    case 599 :
+                        while (isDataLoading) {
+                            progress++;
+                            break;
+                        }
+                        break;
+                    case 600 :
+                        loadingText.setText("데이터 로링 완료 :)");
+                        timer.cancel();
+                        moveToLogIn();
+                        break;
+
+                    default:
+                        progress++;
+                        break;
                 }
-                progress++;
             }
         }, 0, 10);
-    }
-
-    private String sign_in() throws JSONException {
-        final MediaType JSON = MediaType.get("application/json");
-        OkHttpClient client = new OkHttpClient();
-        String base_url = "https://tourlica.shop";
-        JSONObject jo = new JSONObject();
-        jo.put("email", "admin");
-        jo.put("password", "admin");
-
-        RequestBody body = RequestBody.create(jo.toString(), JSON);
-        Request request = new Request.Builder()
-                .url(base_url + "/api/sign-in")
-                .post(body)
-                .build();
-        System.out.println(request);
-
-        try (Response response = client.newCall(request).execute()) {
-            System.out.println(response);
-            if (response.isSuccessful()) {
-                System.out.println("excute!!!!!");
-                return response.body().string();
-            } else {
-                System.out.println("excute error!!!!!");
-                return "error";
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private String getLocationBasedList1(Location location) {
