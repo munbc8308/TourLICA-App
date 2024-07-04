@@ -12,11 +12,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.application.tourlica.databinding.FragmentMapBinding;
+import com.kakao.vectormap.Compass;
 import com.kakao.vectormap.KakaoMap;
 import com.kakao.vectormap.KakaoMapReadyCallback;
 import com.kakao.vectormap.LatLng;
+import com.kakao.vectormap.MapGravity;
 import com.kakao.vectormap.MapLifeCycleCallback;
 import com.kakao.vectormap.MapView;
+import com.kakao.vectormap.ScaleBar;
 import com.kakao.vectormap.label.CompetitionType;
 import com.kakao.vectormap.label.CompetitionUnit;
 import com.kakao.vectormap.label.Label;
@@ -27,6 +30,11 @@ import com.kakao.vectormap.label.LabelOptions;
 import com.kakao.vectormap.label.LabelStyle;
 import com.kakao.vectormap.label.LabelStyles;
 import com.kakao.vectormap.label.OrderingType;
+import com.kakao.vectormap.mapwidget.component.GuiImage;
+import com.kakao.vectormap.mapwidget.component.GuiLayout;
+import com.kakao.vectormap.mapwidget.component.GuiText;
+import com.kakao.vectormap.mapwidget.component.Orientation;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,6 +99,20 @@ public class MapFragment extends Fragment {
                 // 인증 후 API 가 정상적으로 실행될 때 호출됨
                 //Log.d("map", kakaoMap.getViewName());
                 //Log.d("map", "success");
+                //나침반 추가
+                Compass compass = kakaoMap.getCompass();
+                compass.setPosition(MapGravity.BOTTOM| MapGravity.RIGHT, 80, 10);
+                compass.show();
+                //축적바 추가
+                ScaleBar scaleBar = kakaoMap.getScaleBar();
+                scaleBar.setPosition(MapGravity.TOP| MapGravity.RIGHT, 100,10);
+                scaleBar.setAutoHide(false);
+                scaleBar.show();
+
+                kakaoMap.setOnLabelClickListener((_kakaoMap, labelLayer, label) -> {
+                    Log.d("onClick", label.getLabelId());
+                });
+
                 try {
                     doDisplayLabels(kakaoMap);
                 } catch (JSONException e) {
@@ -156,27 +178,21 @@ public class MapFragment extends Fragment {
     }
 
     private void doDisplayLabels(KakaoMap kakaoMap) throws JSONException {
-
         // LabelManager 를 가져오는 방법
         LabelManager labelManager = kakaoMap.getLabelManager();
         // 1. LabelManager 에 미리 생성 된 디폴트 LabelLayer 가져오는 방법
         //labelManager.getLayer();
         //labelManager.getLodLayer();
-
         // 2. 사용자 커스텀으로 LabelLayer 생성 및 가져오는 방법
         LabelLayer layer = labelManager.addLayer(LabelLayerOptions.from("TourLICA_Labels")
                 .setOrderingType(OrderingType.Rank)
                 .setCompetitionUnit(CompetitionUnit.IconAndText)
                 .setCompetitionType(CompetitionType.All));
-
-        //Log.d("json", tour_information_json.toString());
         JSONArray items = tour_information_json.getJSONObject("response")
                 .getJSONObject("body")
                 .getJSONObject("items")
                 .getJSONArray("item");
-
         Log.d("items", items.toString());
-
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
             // 1. LabelStyles 생성하기 - Icon 이미지 하나만 있는 스타일
@@ -191,6 +207,7 @@ public class MapFragment extends Fragment {
                             .setStyles(styles);
             // 4. LabelLayer 에 LabelOptions 을 넣어 Label 생성하기
             Label label = layer.addLabel(options);
+            label.setClickable(true);
 
             if (!item.getString("firstimage").equals("")) {
                 new Thread(() -> {
@@ -206,14 +223,11 @@ public class MapFragment extends Fragment {
             }
             //Log.d("item", item.toString());
         }
-
-
         // 2-1. 사용자 커스텀으로 LodLabelLayer 생성 및 가져오는 방법
         //LodLabelLayer lodLayer = labelManager.addLodLayer(LabelLayerOptions.from("myLayerId")
         //        .setOrderingType(OrderingType.Rank)
         //        .setCompetitionUnit(CompetitionUnit.IconAndText)
         //        .setCompetitionType(CompetitionType.All));
-
     }
 
     private Bitmap getBitmapFromURL(String src) {
@@ -233,7 +247,7 @@ public class MapFragment extends Fragment {
     }
 
     private Bitmap aspectRatioBitamp(Bitmap source) {
-        int targetWidth = 100;
+        int targetWidth = 150;
         double aspectRatio = (double) source.getHeight() / (double) source.getWidth(); // 종횡비 계산
         int targetHeight = (int) (targetWidth * aspectRatio);
         Bitmap result = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);

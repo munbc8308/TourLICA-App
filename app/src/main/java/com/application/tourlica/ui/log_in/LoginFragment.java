@@ -90,7 +90,7 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d("email", s.toString());
+                //Log.d("email", s.toString());
                 email[0] = s.toString();
             }
 
@@ -108,7 +108,7 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d("pwd", s.toString());
+                //Log.d("pwd", s.toString());
                 pwd[0] = s.toString();
             }
 
