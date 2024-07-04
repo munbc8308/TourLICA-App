@@ -32,15 +32,11 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private LocationManager locationManager;
-    private LocationListener locationListener;
-    private String log_in_user_info;
-    private String tour_information;
-
+    private LocationManager locationManager = null;
+    private LocationListener locationListener = null;
+    private String tour_information = "";
     private String location_information = "";
-
-    private ProgressBar progressBar;
-
+    private ProgressBar progressBar = null;
     private Boolean isDataLoading = false;
     private Timer timer = null;
 
@@ -59,18 +55,13 @@ public class MainActivity extends AppCompatActivity {
         locationListener = location -> {
             // 위치가 변할때마다 실행된다.
             // 위치가 변경될때 마다 위도, 경도를 가져온다.
-            location.getLatitude(); // 위도
-            location.getLongitude(); // 경도
-
-            Log.i("MY LOCATION", "위도 : " + location.getLatitude());
-            Log.i("MY LOCATION", "경도 : " + location.getLongitude());
-
+            //Log.i("MY LOCATION", "위도 : " + location.getLatitude());
+            //Log.i("MY LOCATION", "경도 : " + location.getLongitude());
             location_information += location.getLatitude() + "/";
             location_information += location.getLongitude();
 
             new Thread(() -> {
                 tour_information = getLocationBasedList1(location);
-                System.out.println(tour_information);
             }).start();
         };
 

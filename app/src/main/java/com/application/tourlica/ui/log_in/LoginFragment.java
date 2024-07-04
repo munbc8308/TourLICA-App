@@ -1,9 +1,13 @@
 package com.application.tourlica.ui.log_in;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -11,6 +15,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
+
+import com.application.tourlica.LoginActivity;
+import com.application.tourlica.MainActivity;
+import com.application.tourlica.MapActivity;
 import com.application.tourlica.R;
 import com.application.tourlica.databinding.FragmentLoginBinding;
 import com.google.android.material.textfield.TextInputEditText;
@@ -25,14 +34,14 @@ import okhttp3.Response;
 
 public class LoginFragment extends Fragment {
 
-    private FragmentLoginBinding binding;
+    private FragmentLoginBinding binding = null;
 
     private String location_information = "";
     private String tour_information = "";
 
     private String log_in_user_info = "";
 
-    private JSONObject tour_information_json;
+    private JSONObject tour_information_json = null;
 
 
     public static LoginFragment newInstance() {
@@ -118,8 +127,13 @@ public class LoginFragment extends Fragment {
                     JSONObject user = new JSONObject(log_in_user_info);
                     if (user.get("status").equals("SUCCESS")) {
                         Log.d("LOGIN", user.get("data").toString());
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.postDelayed(() -> Toast.makeText(getActivity(), "로그인이 성광하였습니다.", Toast.LENGTH_SHORT).show(), 0);
+                        moveToMap();
                     } else {
                         Log.d("LOGIN", "FAILED");
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.postDelayed(() -> Toast.makeText(getActivity(), "로그인이 실패하였습니다. (email, password 확인 해주세요.)", Toast.LENGTH_SHORT).show(), 0);
                     }
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
@@ -162,6 +176,14 @@ public class LoginFragment extends Fragment {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void moveToMap() {
+        Intent map = new Intent(getActivity(), MapActivity.class);
+        map.putExtra("TOURDATA", tour_information);
+        map.putExtra("LOCATION", location_information);
+        startActivity(map);
+        getActivity().finish();
     }
 
 }

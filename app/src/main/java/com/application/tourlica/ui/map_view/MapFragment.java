@@ -37,13 +37,10 @@ import java.net.URL;
 
 public class MapFragment extends Fragment {
 
-    private FragmentMapBinding binding;
-
+    private FragmentMapBinding binding = null;
     private String location_information = "";
     private String tour_information = "";
-
-    private JSONObject tour_information_json;
-
+    private JSONObject tour_information_json = null;
 
     public static MapFragment newInstance() {
         return new MapFragment();
