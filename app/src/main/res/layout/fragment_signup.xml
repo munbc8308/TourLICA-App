@@ -9,73 +9,15 @@
     android:id="@+id/sign_up"
     tools:context=".ui.log_in.SignupFragment"
     >
-
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.viewpager.widget.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/sign_up_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="#ff11ff11" >
-        <!-- 첫 번째 레이아웃은 메인 레이아웃,
-        background 색상은 본인 자유 -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </androidx.viewpager.widget.ViewPager>
 
-        <TextView
-            android:layout_width="184dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="메인"
-            android:textColor="#000000"
-            android:textSize="60sp" />
-        <!-- 메인 레이아웃에서 "메인"이라는
-        텍스트를 표시해줌-->
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/sliding"
-        android:layout_width="200dp"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_gravity="right"
-        android:background="#ffffff99"
-        android:visibility="invisible">
-        <!-- 두 번째 레이아웃은 슬라이딩으로 보여질 레이아웃,
-        여기서 visibility가 가장 중요한데 평소에 안보였다가(invisible)
-        오픈 버튼을 누르면 보이게(visible)할것임 -->
-
-        <TextView
-            android:layout_width="172dp"
-            android:layout_height="match_parent"
-            android:text="슬라이딩"
-            android:textColor="#000000"
-            android:textSize="40sp"
-            android:gravity="center"/>
-        <!-- 슬라이딩 레이아웃에서 "슬라이딩" 이라는
-        텍스트를 표시함 -->
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="right|bottom" >
-        <!-- 마지막 레이아웃은 버튼이 들어있는 레이아웃,
-        버튼 위치는 layout_gravityfh로 설정할 수 있는데,
-        본인 자유이고 여기서는 오른쪽과 아래를 둘 다 사용함 -->
-
-        <Button
-            android:id="@+id/btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="열기"
-            android:textSize="50dp"
-            android:layout_margin="20dp"/>
-        <!-- 열기라는 버튼을 만들어서 누르면 슬라이딩
-        레이아웃이 보이게함-->
-
-    </LinearLayout>
-    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

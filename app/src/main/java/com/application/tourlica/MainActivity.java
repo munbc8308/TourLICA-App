@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
             new Thread(() -> {
                 tour_information = getLocationBasedList1(location);
+                isDataLoading = true;
             }).start();
         };
 
@@ -150,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(response);
             if (response.isSuccessful()) {
                 System.out.println("관광정보 excute!!!!!");
-                isDataLoading = true;
                 return response.body().string();
             } else {
                 System.out.println("excute error!!!!!");
