@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.application.tourlica.LoginActivity;
-import com.application.tourlica.MainActivity;
 import com.application.tourlica.MapActivity;
 import com.application.tourlica.R;
 import com.application.tourlica.databinding.FragmentLoginBinding;
@@ -139,6 +138,11 @@ public class LoginFragment extends Fragment {
                     throw new RuntimeException(e);
                 }
             }).start();
+        });
+
+        btn_sign_up.setOnClickListener(v -> {
+            ((LoginActivity)getActivity()).replaceFragment(SignupFragment.newInstance());
+
         });
 
     }

@@ -6,28 +6,21 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.activity.ComponentActivity;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.application.tourlica.data.AppData;
 import com.kakao.vectormap.KakaoMapSdk;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
@@ -80,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 2000, // 몇미터 이동에 한번씩 찾을까
                 locationListener);// 어떤 코드를 실행 시킬것인지.
 
-        setContentView(R.layout.main_activity);
+        setContentView(R.layout.activity_main);
         progressBar = findViewById(R.id.progress_horizontal);
         TextView loadingText = findViewById(R.id.loading_text);
         startProgress(progressBar, loadingText);
