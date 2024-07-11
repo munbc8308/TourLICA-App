@@ -9,15 +9,17 @@
     android:id="@+id/sign_up"
     tools:context=".ui.log_in.SignupFragment"
     >
-    <androidx.viewpager.widget.ViewPager
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/sign_up_pager"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewpager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-    </androidx.viewpager.widget.ViewPager>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

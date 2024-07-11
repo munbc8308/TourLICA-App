@@ -14,13 +14,23 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.application.tourlica.R;
+import com.application.tourlica.data.UserData;
 import com.application.tourlica.databinding.FragmentSignupBinding;
 import com.google.android.material.tabs.TabLayout;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 
 public class SignupFragment extends Fragment {
-    CollectionPagerAdapter collectionPagerAdapter;
-    ViewPager viewPager;
 
     private FragmentSignupBinding binding = null;
     public static SignupFragment newInstance() {
@@ -45,57 +55,38 @@ public class SignupFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        collectionPagerAdapter = new CollectionPagerAdapter(getChildFragmentManager());
-        viewPager = view.findViewById(R.id.sign_up_pager);
-        viewPager.setAdapter(collectionPagerAdapter);
-        TabLayout tabLayout = view.findViewById(R.id.tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
     }
 
-    // Since this is an object collection, use a FragmentStatePagerAdapter,
-    // NOT a FragmentPagerAdapter.
-    public class CollectionPagerAdapter extends FragmentStatePagerAdapter {
-        public CollectionPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
+    private String sign_up(UserData userData) throws JSONException {
+        final MediaType JSON = MediaType.get("application/json");
+        OkHttpClient client = new OkHttpClient();
+        String base_url = "https://tourlica.shop";
+        JSONObject jo = new JSONObject();
+        jo.put("email", userData.getEmail());
+        jo.put("password", userData.getPassword());
+        jo.put("type", userData.getType());
+        jo.put("birthday", userData.getBirthday());
+        jo.put("name", userData.getName());
+        jo.put("gender", userData.getGender());
 
-        @Override
-        public Fragment getItem(int i) {
-            Fragment fragment = new ObjectFragment();
-            Bundle args = new Bundle();
-            // Our object is just an integer :-P
-            args.putInt(ObjectFragment.ARG_OBJECT, i + 1);
-            fragment.setArguments(args);
-            return fragment;
-        }
+        RequestBody body = RequestBody.create(jo.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(base_url + "/api/sign-up")
+                .post(body)
+                .build();
+        System.out.println(request);
 
-        @Override
-        public int getCount() {
-            return 100;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return "OBJECT " + (position + 1);
-        }
-    }
-
-    // Instances of this class are fragments representing a single
-    // object in the collection.
-    public class ObjectFragment extends Fragment {
-        public static final String ARG_OBJECT = "object";
-
-        @Override
-        public View onCreateView(LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_collection_object, container, false);
-        }
-
-        @Override
-        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-            Bundle args = getArguments();
-            ((TextView) view.findViewById(android.R.id.text1))
-                    .setText(Integer.toString(args.getInt(ARG_OBJECT)));
+        try (Response response = client.newCall(request).execute()) {
+            System.out.println(response);
+            if (response.isSuccessful()) {
+                System.out.println("excute!!!!!");
+                return response.body().string();
+            } else {
+                System.out.println("excute error!!!!!");
+                return "error";
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
