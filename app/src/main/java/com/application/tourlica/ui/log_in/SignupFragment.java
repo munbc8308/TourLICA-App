@@ -4,19 +4,19 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.application.tourlica.R;
 import com.application.tourlica.data.UserData;
 import com.application.tourlica.databinding.FragmentSignupBinding;
+import com.application.tourlica.ui.log_in.adapter.SignupAdapter;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +33,8 @@ import okhttp3.Response;
 public class SignupFragment extends Fragment {
 
     private FragmentSignupBinding binding = null;
+    SignupAdapter signupAdapter;
+    ViewPager2 viewPager;
     public static SignupFragment newInstance() {
         return new SignupFragment();
     }
@@ -54,7 +56,15 @@ public class SignupFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        //super.onViewCreated(view, savedInstanceState);
+
+        signupAdapter = new SignupAdapter(this);
+        viewPager = view.findViewById(R.id.pager);
+        viewPager.setAdapter(signupAdapter);
+        TabLayout tabLayout = view.findViewById(R.id.tab_layout);
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> tab.setText("OBJECT " + (position + 1))
+        ).attach();
     }
 
     private String sign_up(UserData userData) throws JSONException {
@@ -90,3 +100,8 @@ public class SignupFragment extends Fragment {
         }
     }
 }
+
+
+
+
+
